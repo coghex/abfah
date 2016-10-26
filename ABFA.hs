@@ -25,7 +25,7 @@ initGL win = do
 
 loadGLTextures :: IO GLuint
 loadGLTextures = do
-  fp <- getDataFileName "NeHe.bmp"
+  fp <- getDataFileName "maps/plains/worldplains.bmp"
   putStrLn $ "loading texture: " ++ fp
   Just (Image w h pd) <- bitmapLoad fp
   putStrLn $ "Image width  = " ++ show w
@@ -56,13 +56,13 @@ resizeScene _   width height = do
   glLoadIdentity
   glFlush
 
-drawScene :: GLuint -> GLFW.Window -> IO ()
-drawScene tex _ = do
+drawScene :: GLuint -> GLfloat -> GLfloat -> GLFW.Window -> IO ()
+drawScene tex x y _ = do
   -- clear the screen and the depth buffer
   glClear $ fromIntegral  $  gl_COLOR_BUFFER_BIT
                          .|. gl_DEPTH_BUFFER_BIT
   glLoadIdentity  -- reset view
-  glTranslatef 0 0 (-10.0)
+  glTranslatef x y (-100.0)
   glBindTexture gl_TEXTURE_2D tex  
   glBegin gl_QUADS
   glTexCoord2f   0    0
@@ -106,8 +106,10 @@ main = do
 
      GLFW.makeContextCurrent (Just win)
      tex <- initGL win
+     let x = 5.0
+     let y = 0.0
      -- register the function to do all our OpenGL drawing
-     GLFW.setWindowRefreshCallback win (Just (drawScene tex))
+     GLFW.setWindowRefreshCallback win (Just (drawScene tex x y))
      -- register the funciton called when our window is resized
      GLFW.setFramebufferSizeCallback win (Just resizeScene)
      -- register the function called when the keyboard is pressed.
@@ -117,5 +119,5 @@ main = do
      -- start event processing engine
      forever $ do
        GLFW.pollEvents
-       drawScene tex win
+       drawScene tex x y win
        GLFW.swapBuffers win
